@@ -75,7 +75,7 @@ public class Book {
     /// @param publishDate the given date of publication
     public void setPublishDate(LocalDate publishDate) { this.publishDate = publishDate; }
 
-    /// Returns the availability of the book.
+    /// Returns true if the book is available.
     public boolean isAvailable() { return isAvailable; }
     /// Sets the book availability status with given value.
     /// @param available the given book status
