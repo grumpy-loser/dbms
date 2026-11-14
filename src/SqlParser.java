@@ -202,7 +202,7 @@ public class SqlParser {
                 case "STRING": case "TEXT": return STRING;
                 case "DATE": return DATE;
                 case "BOOLEAN": case "BOOL": return BOOLEAN;
-                default: throw new SqlParseException("Unknown column type: " + s);
+                default: throw new SqlParseException("Неизвестный тип столбца: " + s);
             }
         }
     }
@@ -260,7 +260,7 @@ public class SqlParser {
          */
         public static Value parse(String token) throws SqlParseException {
             String t = token.trim();
-            if (t.isEmpty()) throw new SqlParseException("Empty literal");
+            if (t.isEmpty()) throw new SqlParseException("Пустой литерал");
             if (t.length() >= 2
                     && ((t.charAt(0) == '\'' && t.charAt(t.length() - 1) == '\'')
                     || (t.charAt(0) == '"'  && t.charAt(t.length() - 1) == '"'))) {
@@ -282,7 +282,7 @@ public class SqlParser {
                 return new Value(Long.parseLong(t), ColType.INTEGER);
             } catch (NumberFormatException ignored) { }
 
-            throw new SqlParseException("Could not recognize value: " + token);
+            throw new SqlParseException("Не удалось распознать значение: " + token);
         }
 
         /**
@@ -337,7 +337,7 @@ public class SqlParser {
             public static Operator fromString(String s) throws SqlParseException {
                 for (Operator o : values()) if (o.symbol.equals(s)) return o;
                 if ("!=".equals(s)) return NEQ;
-                throw new SqlParseException("Unknown operator: " + s);
+                throw new SqlParseException("Неизвестный оператор: " + s);
             }
         }
 
@@ -374,12 +374,12 @@ public class SqlParser {
      * @throws SqlParseException if the query is empty, unknown, or malformed
      */
     public Query parse(String sql) throws SqlParseException {
-        if (sql == null || sql.trim().isEmpty()) throw new SqlParseException("Empty query");
+        if (sql == null || sql.trim().isEmpty()) throw new SqlParseException("Пустой запрос");
         String s = sql.trim();
         if (s.endsWith(";")) s = s.substring(0, s.length() - 1).trim();
 
         String[] w = splitWords(s);
-        if (w.length == 0) throw new SqlParseException("Empty query");
+        if (w.length == 0) throw new SqlParseException("Пустой запрос");
         switch (w[0].toUpperCase()) {
             case "INSERT": return parseInsert(s);
             case "SELECT": return parseSelect(s);
@@ -387,7 +387,7 @@ public class SqlParser {
             case "DELETE": return parseDelete(s);
             case "CREATE": return parseCreate(s);
             case "DROP":   return parseDrop(s);
-            default: throw new SqlParseException("Unknown command: " + w[0], s, 0);
+            default: throw new SqlParseException("Неизвестная команда: " + w[0], s, 0);
         }
     }
 
@@ -401,9 +401,9 @@ public class SqlParser {
      */
     private InsertQuery parseInsert(String s) throws SqlParseException {
         int into = keywordIndex(s, "INTO", 0);
-        if (into < 0) throw new SqlParseException("INSERT without INTO", s, 0);
+        if (into < 0) throw new SqlParseException("INSERT без INTO", s, 0);
         int values = keywordIndex(s, "VALUES", into + 4);
-        if (values < 0) throw new SqlParseException("INSERT without VALUES", s, into);
+        if (values < 0) throw new SqlParseException("INSERT без VALUES", s, into);
 
         String header = s.substring(into + 4, values).trim();
         String table;
@@ -411,12 +411,12 @@ public class SqlParser {
         int pOpen = header.indexOf('(');
         if (pOpen >= 0) {
             table = header.substring(0, pOpen).trim();
-            requireIdentifier(table, "table name", s, into + 4);
+            requireIdentifier(table, "имя таблицы", s, into + 4);
             int pClose = matchParen(header, pOpen, s);
             columns = splitIdentifiers(header.substring(pOpen + 1, pClose), s);
         } else {
             table = header;
-            requireIdentifier(table, "table name", s, into + 4);
+            requireIdentifier(table, "имя таблицы", s, into + 4);
         }
 
         String valuesPart = s.substring(values + "VALUES".length()).trim();
@@ -425,7 +425,7 @@ public class SqlParser {
         while (i < valuesPart.length()) {
             char c = valuesPart.charAt(i);
             if (Character.isWhitespace(c) || c == ',') { i++; continue; }
-            if (c != '(') throw new SqlParseException("Expected '(' in VALUES", s, values + i);
+            if (c != '(') throw new SqlParseException("Ожидалась '(' в VALUES", s, values + i);
             int close = matchParen(valuesPart, i, s);
             List<Value> row = new ArrayList<>();
             for (String v : splitTopLevel(valuesPart.substring(i + 1, close), ',', s)) {
@@ -434,11 +434,11 @@ public class SqlParser {
             rows.add(row);
             i = close + 1;
         }
-        if (rows.isEmpty()) throw new SqlParseException("INSERT without values", s, values);
+        if (rows.isEmpty()) throw new SqlParseException("INSERT без значений", s, values);
         if (!columns.isEmpty()) {
             for (List<Value> r : rows) {
                 if (r.size() != columns.size())
-                    throw new SqlParseException("Value count does not match column count", s, values);
+                    throw new SqlParseException("Число значений не совпадает с числом столбцов", s, values);
             }
         }
         return new InsertQuery(table, columns, rows);
@@ -453,7 +453,7 @@ public class SqlParser {
      */
     private SelectQuery parseSelect(String s) throws SqlParseException {
         int from = keywordIndex(s, "FROM", "SELECT".length());
-        if (from < 0) throw new SqlParseException("SELECT without FROM", s, 0);
+        if (from < 0) throw new SqlParseException("SELECT без FROM", s, 0);
 
         String colsPart = s.substring("SELECT".length(), from).trim();
         List<String> columns = colsPart.equals("*") ? new ArrayList<>()
@@ -468,7 +468,7 @@ public class SqlParser {
             table = s.substring(from + 4, where).trim();
             cond = parseCondition(s.substring(where + "WHERE".length()).trim(), s);
         }
-        requireIdentifier(table, "table name", s, from + 4);
+        requireIdentifier(table, "имя таблицы", s, from + 4);
         return new SelectQuery(columns, table, cond);
     }
 
@@ -481,9 +481,9 @@ public class SqlParser {
      */
     private UpdateQuery parseUpdate(String s) throws SqlParseException {
         int set = keywordIndex(s, "SET", "UPDATE".length());
-        if (set < 0) throw new SqlParseException("UPDATE without SET", s, 0);
+        if (set < 0) throw new SqlParseException("UPDATE без SET", s, 0);
         String table = s.substring("UPDATE".length(), set).trim();
-        requireIdentifier(table, "table name", s, "UPDATE".length());
+        requireIdentifier(table, "имя таблицы", s, "UPDATE".length());
 
         int where = keywordIndex(s, "WHERE", set + 3);
         String assignPart;
@@ -499,14 +499,14 @@ public class SqlParser {
             a = a.trim();
             if (a.isEmpty()) continue;
             int eq = indexOfOperatorTopLevel(a);
-            if (eq < 0) throw new SqlParseException("Expected '=' in SET: " + a, s, set);
+            if (eq < 0) throw new SqlParseException("Ожидался '=' в SET: " + a, s, set);
             String col = a.substring(0, eq).trim();
             String val = a.substring(eq + 1).trim();
-            requireIdentifier(col, "column name", s, set);
-            if (val.isEmpty()) throw new SqlParseException("Empty value in SET: " + col, s, set);
+            requireIdentifier(col, "имя столбца", s, set);
+            if (val.isEmpty()) throw new SqlParseException("Пустое значение в SET: " + col, s, set);
             map.put(col, Value.parse(val));
         }
-        if (map.isEmpty()) throw new SqlParseException("UPDATE without assignments", s, set);
+        if (map.isEmpty()) throw new SqlParseException("UPDATE без присваиваний", s, set);
         return new UpdateQuery(table, map, cond);
     }
 
@@ -519,7 +519,7 @@ public class SqlParser {
      */
     private DeleteQuery parseDelete(String s) throws SqlParseException {
         int from = keywordIndex(s, "FROM", "DELETE".length());
-        if (from < 0) throw new SqlParseException("DELETE without FROM", s, 0);
+        if (from < 0) throw new SqlParseException("DELETE без FROM", s, 0);
         int where = keywordIndex(s, "WHERE", from + 4);
         String table;
         Condition cond = null;
@@ -529,7 +529,7 @@ public class SqlParser {
             table = s.substring(from + 4, where).trim();
             cond = parseCondition(s.substring(where + "WHERE".length()).trim(), s);
         }
-        requireIdentifier(table, "table name", s, from + 4);
+        requireIdentifier(table, "имя таблицы", s, from + 4);
         return new DeleteQuery(table, cond);
     }
 
@@ -547,7 +547,7 @@ public class SqlParser {
             return parseCreateTable(rest.substring("TABLE".length()).trim(), s);
         if (keywordIndex(rest, "INDEX", 0) == 0)
             return parseCreateIndex(rest.substring("INDEX".length()).trim(), s);
-        throw new SqlParseException("CREATE supports only TABLE and INDEX", s, 0);
+        throw new SqlParseException("CREATE поддерживает только TABLE и INDEX", s, 0);
     }
 
     /**
@@ -560,24 +560,24 @@ public class SqlParser {
      */
     private CreateTableQuery parseCreateTable(String s, String context) throws SqlParseException {
         int pOpen = s.indexOf('(');
-        if (pOpen < 0) throw new SqlParseException("CREATE TABLE without '('", context, 0);
+        if (pOpen < 0) throw new SqlParseException("CREATE TABLE без '('", context, 0);
         int pClose = matchParen(s, pOpen, context);
         String table = s.substring(0, pOpen).trim();
-        requireIdentifier(table, "table name", context, 0);
+        requireIdentifier(table, "имя таблицы", context, 0);
 
         List<ColDefinition> cols = new ArrayList<>();
         for (String part : splitTopLevel(s.substring(pOpen + 1, pClose), ',', context)) {
             part = part.trim();
             if (part.isEmpty()) continue;
             String[] w = splitWords(part);
-            if (w.length < 2) throw new SqlParseException("Invalid column: " + part, context, 0);
-            requireIdentifier(w[0], "column name", context, 0);
+            if (w.length < 2) throw new SqlParseException("Некорректный столбец: " + part, context, 0);
+            requireIdentifier(w[0], "имя столбца", context, 0);
             boolean pk = false;
             for (int i = 2; i < w.length - 1; i++)
                 if ("PRIMARY".equalsIgnoreCase(w[i]) && "KEY".equalsIgnoreCase(w[i + 1])) pk = true;
             cols.add(new ColDefinition(w[0], ColType.fromString(w[1]), pk));
         }
-        if (cols.isEmpty()) throw new SqlParseException("CREATE TABLE without columns", context, 0);
+        if (cols.isEmpty()) throw new SqlParseException("CREATE TABLE без столбцов", context, 0);
         return new CreateTableQuery(table, cols);
     }
 
@@ -591,17 +591,17 @@ public class SqlParser {
      */
     private CreateIndexQuery parseCreateIndex(String s, String context) throws SqlParseException {
         int on = keywordIndex(s, "ON", 0);
-        if (on < 0) throw new SqlParseException("CREATE INDEX without ON", context, 0);
+        if (on < 0) throw new SqlParseException("CREATE INDEX без ON", context, 0);
         String indexName = s.substring(0, on).trim();
-        requireIdentifier(indexName, "index name", context, 0);
+        requireIdentifier(indexName, "имя индекса", context, 0);
         String tail = s.substring(on + 2).trim();
         int pOpen = tail.indexOf('(');
-        if (pOpen < 0) throw new SqlParseException("CREATE INDEX without '('", context, 0);
+        if (pOpen < 0) throw new SqlParseException("CREATE INDEX без '('", context, 0);
         int pClose = matchParen(tail, pOpen, context);
         String table = tail.substring(0, pOpen).trim();
         String col = tail.substring(pOpen + 1, pClose).trim();
-        requireIdentifier(table, "table name", context, 0);
-        requireIdentifier(col, "column name", context, 0);
+        requireIdentifier(table, "имя таблицы", context, 0);
+        requireIdentifier(col, "имя столбца", context, 0);
         return new CreateIndexQuery(indexName, table, col);
     }
 
@@ -615,9 +615,9 @@ public class SqlParser {
     private DropTableQuery parseDrop(String s) throws SqlParseException {
         String rest = s.substring("DROP".length()).trim();
         if (keywordIndex(rest, "TABLE", 0) != 0)
-            throw new SqlParseException("DROP supports only TABLE", s, 0);
+            throw new SqlParseException("DROP поддерживает только TABLE", s, 0);
         String table = rest.substring("TABLE".length()).trim();
-        requireIdentifier(table, "table name", s, 0);
+        requireIdentifier(table, "имя таблицы", s, 0);
         return new DropTableQuery(table);
     }
 
@@ -683,11 +683,11 @@ public class SqlParser {
             for (String o : ops) if (s.startsWith(o, i)) { idx = i; op = o; break; }
             if (idx >= 0) break;
         }
-        if (idx < 0) throw new SqlParseException("Invalid condition: " + s, context, 0);
+        if (idx < 0) throw new SqlParseException("Некорректное условие: " + s, context, 0);
         String col = s.substring(0, idx).trim();
         String val = s.substring(idx + op.length()).trim();
-        requireIdentifier(col, "column name in condition", context, 0);
-        if (val.isEmpty()) throw new SqlParseException("Empty value in condition: " + s, context, 0);
+        requireIdentifier(col, "имя столбца в условии", context, 0);
+        if (val.isEmpty()) throw new SqlParseException("Пустое значение в условии: " + s, context, 0);
         return new Condition(col, Condition.Operator.fromString(op), Value.parse(val), andNext, next);
     }
 
@@ -726,16 +726,16 @@ public class SqlParser {
     private static String requireIdentifier(String name, String what, String context, int pos)
             throws SqlParseException {
         if (name == null || name.isEmpty())
-            throw new SqlParseException("Empty " + what, context, pos);
+            throw new SqlParseException("Пустое " + what, context, pos);
         if (name.length() > MAX_IDENT)
-            throw new SqlParseException(what + " is too long (>" + MAX_IDENT + ")", context, pos);
+            throw new SqlParseException(what + " слишком длинное (>" + MAX_IDENT + ")", context, pos);
         char c0 = name.charAt(0);
         if (!Character.isLetter(c0) && c0 != '_')
-            throw new SqlParseException(what + " must start with a letter or '_': " + name, context, pos);
+            throw new SqlParseException(what + " должно начинаться с буквы или '_': " + name, context, pos);
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
             if (!Character.isLetterOrDigit(c) && c != '_')
-                throw new SqlParseException(what + " contains an invalid character '" + c
+                throw new SqlParseException(what + " содержит недопустимый символ '" + c
                         + "': " + name, context, pos);
         }
         return name;
@@ -771,8 +771,8 @@ public class SqlParser {
             }
             j++;
         }
-        throw new SqlParseException("Unterminated quote " + quote
-                + " (position " + start + ")", context, start);
+        throw new SqlParseException("Незакрытая кавычка " + quote
+                + " (позиция " + start + ")", context, start);
     }
 
     /**
@@ -847,7 +847,7 @@ public class SqlParser {
      */
     private static int matchParen(String s, int open, String context) throws SqlParseException {
         if (open < 0 || open >= s.length() || s.charAt(open) != '(')
-            throw new SqlParseException("Expected '(' at position " + open, context, open);
+            throw new SqlParseException("Ожидалась '(' в позиции " + open, context, open);
         int depth = 0;
         int i = open;
         while (i < s.length()) {
@@ -863,7 +863,7 @@ public class SqlParser {
             }
             i++;
         }
-        throw new SqlParseException("Closing ')' not found for '(' at position " + open,
+        throw new SqlParseException("Не найдена ')' для '(' в позиции " + open,
                 context, open);
     }
 
@@ -910,7 +910,7 @@ public class SqlParser {
         for (String p : splitTopLevel(s, ',', context)) {
             String t = p.trim();
             if (t.isEmpty()) continue;
-            requireIdentifier(t, "column name", context, 0);
+            requireIdentifier(t, "имя столбца", context, 0);
             out.add(t);
         }
         return out;
