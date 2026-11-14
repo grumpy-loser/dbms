@@ -1,96 +1,78 @@
 import java.time.LocalDate;
 
-/// Represents a [Book] object.
-///
-/// Initialized by int `id`, String `title`,
-/// int `authorId`, double `price`, LocalDate `publishDate`
-/// and boolean `isAvailable`.
-///
-/// Book supports constructors, getters and setters for each field
-/// and Override method [toString].
-public class Book {
+/** Represents a {@link Author} object.
+ * <p>
+ * Initialized by int {@link id}, String {@link name},
+ * {@link LocalDate} {@link birthDate}, boolean {@link isAlive}.
+ *  <p>
+ * Author supports constructors, getters and setters for each field
+ * and Override method {@link toString}.
+ * */
+public class Author {
 
-    /// id of book, primary key.
+    /** id of author, primary key. */
     private int id;
-    /// Title of the book.
-    private String title;
-    /// id of author of the book,
-    /// foreign key to connect with [Author].
-    private int authorId;
-    /// Price of the book.
-    private double price;
-    /// [LocalDate] object to record
-    /// date of book publishing.
-    private LocalDate publishDate;
-    /// Check if the book is available.
-    private boolean isAvailable;
+    /** Name of the author. */
+    private String name;
+    /** {@link LocalDate} object to record author's date of birth. */
+    private LocalDate birthDate;
+    /** Check if the author is alive. */
+    private boolean isAlive;
 
-    /// Empty constructor is required when using Gson library.
-    public Book() {}
+    /** Empty constructor is required when using Gson library. */
+    public Author(){}
 
-    /// Constructs Book object.
-    /// @param id primary key
-    /// @param title title of the book
-    /// @param authorId foreign key to connect with author
-    /// @param price price of the book
-    /// @param publishDate date of the book publication
-    /// @param isAvailable check for availability
-    public Book(int id, String title, int authorId, double price,
-                LocalDate publishDate, boolean isAvailable) {
+    /** Constructs Author object.
+    *  @param id primary key
+    *  @param name name of the author
+    *  @param birthDate author's date of birth
+    *  @param isAlive check for contemporary relevance
+     *  */
+    public Author(int id, String name, LocalDate birthDate, boolean isAlive){
         this.id = id;
-        this.title = title;
-        this.authorId = authorId;
-        this.price = price;
-        this.publishDate = publishDate;
-        this.isAvailable = isAvailable;
+        this.name = name;
+        this.birthDate = birthDate;
+        this.isAlive = isAlive;
     }
 
-    /// Returns the id of the book.
+    /** Returns the id of the author. */
     public int getId() { return id; }
-    /// Sets the book id with given value.
-    /// @param id the given id
+    /** Sets the id of author with given value.
+     * @param id the given id
+     * */
     public void setId(int id) { this.id = id; }
 
-    /// Returns the title of the book.
-    public String getTitle() { return title; }
-    /// Sets the book title with given value.
-    /// @param title the given title
-    public void setTitle(String title) { this.title = title; }
+    /** Returns the name of the author. */
+    public String getName() { return name; }
+    /** Sets the name of the author with given value.
+     * @param name the given name
+     * */
+    public void setName(String name) { this.name = name; }
 
-    /// Returns id of author of the book.
-    public int getAuthorId() { return authorId; }
-    /// Sets the id of author with given value.
-    /// @param authorId the given author id
-    public void setAuthorId(int authorId) { this.authorId = authorId; }
+    /** Returns the author's date of birth. */
+    public LocalDate getBirthDate() { return birthDate; }
+    /** Sets the author's date of birth with given value.
+     * @param birthDate the given date of birth
+     * */
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 
-    /// Returns the price of the book.
-    public double getPrice() { return price; }
-    /// Sets the book price with given value.
-    /// @param price the given price
-    public void setPrice(double price) { this.price = price; }
+    /** Returns true if author is a contemporary. */
+    public boolean isAlive() { return isAlive; }
+    /** Sets the contemporary status of author.
+     * @param isAlive the given author status
+     * */
+    public void setAlive(boolean isAlive) { this.isAlive = isAlive; }
 
-    /// Returns the publication date of the book.
-    public LocalDate getPublishDate() { return publishDate; }
-    /// Sets the book publication date with given value.
-    /// @param publishDate the given date of publication
-    public void setPublishDate(LocalDate publishDate) { this.publishDate = publishDate; }
-
-    /// Returns true if the book is available.
-    public boolean isAvailable() { return isAvailable; }
-    /// Sets the book availability status with given value.
-    /// @param available the given book status
-    public void setAvailable(boolean available) { isAvailable = available; }
-
-    /// Returns stringified representation of this Author fields.
+    /** Returns stringified representation of this Author fields. */
     @Override
     public String toString() {
-        return "Book{" +
+        return "Author{" +
                 "id=" + id +
-                ", title='" + title + '\'' +
-                ", authorId=" + authorId +
-                ", price=" + price +
-                ", publishDate=" + publishDate +
-                ", isAvailable=" + isAvailable +
+                ", name='" + name + '\'' +
+                ", birthDate=" + birthDate +
+                ", isAlive=" + isAlive +
                 '}';
     }
+
+
 }
