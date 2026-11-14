@@ -364,7 +364,7 @@ public class SqlParser {
             this.next = next;
         }
     }
-
+    //========================================================================================================
     /**
      * Parses one SQL query and returns a ready-made object.
      * This is the only method that needs to be called from outside.
