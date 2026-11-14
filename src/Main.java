@@ -1,13 +1,17 @@
 import javax.swing.*;
 
 public class Main {
-    // Укажи свой путь
-    private static final String DB_PATH = "C:\\Projects\\Mariia\\Java\\Data Management\\database_data\\library0.txt";
-
     public static void main(String[] args) {
+        // Запускаем GUI в потоке диспетчеризации событий Swing
         SwingUtilities.invokeLater(() -> {
-            // Передаем путь в конструктор, чтобы БД открылась сразу при запуске
-            LibraryGUI gui = new LibraryGUI(DB_PATH);
+            try {
+                // Установка нативного стиля интерфейса (Windows/macOS/Linux)
+                javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            DatabaseGUI gui = new DatabaseGUI();
             gui.setVisible(true);
         });
     }
