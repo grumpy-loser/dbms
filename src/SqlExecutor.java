@@ -605,10 +605,10 @@ public class QueryExecutor {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", b.getId());
         m.put("title", b.getTitle());
-        m.put("authorId", b.getAuthorId());
+        m.put("authorid", b.getAuthorId());
         m.put("price", b.getPrice());
-        m.put("publishDate", b.getPublishDate());
-        m.put("isAvailable", b.isAvailable());
+        m.put("publishdate", b.getPublishDate());
+        m.put("isavailable", b.isAvailable());
         return m;
     }
 
@@ -622,10 +622,10 @@ public class QueryExecutor {
         return new Book(
                 ((Number) m.get("id")).intValue(),
                 (String) m.get("title"),
-                ((Number) m.get("authorId")).intValue(),
+                ((Number) m.get("authorid")).intValue(),
                 ((Number) m.get("price")).doubleValue(),
-                (LocalDate) m.get("publishDate"),
-                (Boolean) m.get("isAvailable"));
+                (LocalDate) m.get("publishdate"),
+                (Boolean) m.get("isavailable"));
     }
 
     /**
@@ -638,8 +638,8 @@ public class QueryExecutor {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", a.getId());
         m.put("name", a.getName());
-        m.put("birthDate", a.getBirthDate());
-        m.put("isAlive", a.isAlive());
+        m.put("birthdate", a.getBirthDate());
+        m.put("isalive", a.isAlive());
         return m;
     }
 
@@ -653,7 +653,7 @@ public class QueryExecutor {
         return new Author(
                 ((Number) m.get("id")).intValue(),
                 (String) m.get("name"),
-                (LocalDate) m.get("birthDate"),
-                (Boolean) m.get("isAlive"));
+                (LocalDate) m.get("birthdate"),
+                (Boolean) m.get("isalive"));
     }
 }
